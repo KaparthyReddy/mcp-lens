@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mcp-lens</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">mcp-lens</div>
+    <div id="meta" class="meta"></div>
+    <div id="status" class="status">connecting</div>
+  </header>
+
+  <section id="cards" class="cards"></section>
+
+  <nav class="toolbar">
+    <div class="tabs">
+      <button class="tab active" data-view="timeline">Timeline</button>
+      <button class="tab" data-view="tools">Tools</button>
+      <button class="tab" data-view="stderr">Stderr</button>
+    </div>
+    <input id="filter" type="search" placeholder="Filter by method, tool, or text">
+    <label class="check"><input id="errorsOnly" type="checkbox"> errors only</label>
+    <button id="pause">Pause</button>
+    <button id="clear">Clear</button>
+    <a id="export" class="button" href="/api/export" download>Export</a>
+  </nav>
+
+  <main>
+    <section id="list" class="list"></section>
+    <aside id="detail" class="detail hidden"></aside>
+  </main>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
