@@ -1,0 +1,15 @@
+{
+  "prompts": [
+    { "prompt": "Show me everything in my notes", "expectedTool": "list_notes" },
+    { "prompt": "What notes do I have?", "expectedTool": "list_notes" },
+    { "prompt": "Open note n2", "expectedTool": "get_note", "expectedArgs": { "id": "n2" } },
+    { "prompt": "Find my notes about groceries", "expectedTool": "search_notes", "expectedArgs": { "query": "groceries" } },
+    { "prompt": "Search notes for travel", "expectedTool": "search_notes", "expectedArgs": { "query": "travel" } },
+    { "prompt": "Save a note titled Ideas with the text build a CLI", "expectedTool": "save_note", "expectedArgs": { "title": "Ideas" } },
+    { "prompt": "Delete note n3", "expectedTool": "delete_note", "expectedArgs": { "id": "n3" } },
+    { "prompt": "Run the command ls -la", "expectedTool": "run_command", "expectedArgs": { "command": "ls -la" } },
+    { "prompt": "Download https://example.com", "expectedTool": "fetch_url", "expectedArgs": { "url": "https://example.com" } },
+    { "prompt": "Export all my notes", "expectedTool": "export_notes" },
+    { "prompt": "What is the capital of France?", "expectedTool": null }
+  ]
+}
