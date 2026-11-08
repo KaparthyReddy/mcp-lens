@@ -1,0 +1,46 @@
+{
+  "defaultAction": "ask",
+  "prompt": "web",
+  "askTimeoutSeconds": 60,
+  "approvalPort": 7778,
+  "openBrowser": true,
+  "audit": ".mcp-lens/audit.jsonl",
+  "rules": [
+    {
+      "name": "block destructive shell patterns",
+      "tool": "run_command",
+      "when": [
+        {
+          "arg": "command",
+          "op": "matches",
+          "value": "rm\\s+-rf|mkfs|dd\\s+if=|:\\(\\)\\s*\\{|curl[^|]*\\|\\s*(sh|bash)"
+        }
+      ],
+      "action": "deny",
+      "reason": "destructive shell pattern"
+    },
+    {
+      "name": "block sensitive paths",
+      "tool": "*",
+      "when": [
+        {
+          "arg": "*",
+          "op": "matches",
+          "value": "/etc/|/\\.ssh/|\\.env\\b|id_rsa"
+        }
+      ],
+      "action": "deny",
+      "reason": "sensitive path in arguments"
+    },
+    {
+      "name": "reads are safe",
+      "tool": ["list_*", "get_*", "search_*", "read_*", "export_*"],
+      "action": "allow"
+    },
+    {
+      "name": "writes and network need approval",
+      "tool": ["save_*", "delete_*", "run_command", "fetch_url"],
+      "action": "ask"
+    }
+  ]
+}
