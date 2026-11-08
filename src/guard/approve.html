@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mcp-lens guard</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --panel: #f6f7f9;
+      --border: #dfe3e8;
+      --text: #1b1f24;
+      --dim: #6b7380;
+      --ok: #15803d;
+      --bad: #b91c1c;
+      --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1318;
+        --panel: #171c23;
+        --border: #262d37;
+        --text: #e6e9ee;
+        --dim: #8b95a3;
+        --ok: #4ade80;
+        --bad: #f87171;
+        --accent: #60a5fa;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 760px; margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 20px; }
+    .sub { color: var(--dim); margin-bottom: 20px; }
+    .status { float: right; font-size: 12px; color: var(--ok); }
+    .status.off { color: var(--bad); }
+    .empty { padding: 40px; text-align: center; color: var(--dim); border: 1px dashed var(--border); border-radius: 10px; }
+    .card { margin-bottom: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+    .title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .meta { color: var(--dim); font-size: 12px; margin-bottom: 8px; }
+    pre {
+      margin: 0 0 12px;
+      padding: 10px;
+      max-height: 280px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    button:hover { border-color: var(--accent); }
+    button.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+    button.bad { background: var(--bad); border-color: var(--bad); color: #fff; }
+  </style>
+</head>
+<body>
+  <main>
+    <span id="status" class="status">connected</span>
+    <h1>mcp-lens guard</h1>
+    <div class="sub">Tool calls waiting for your approval. Unanswered requests are denied when the timer runs out.</div>
+    <div id="empty" class="empty">No pending approvals. Keep this tab open.</div>
+    <div id="items"></div>
+  </main>
+
+  <script>
+    const token = new URLSearchParams(location.search).get('t') || '';
+    const itemsEl = document.getElementById('items');
+    const emptyEl = document.getElementById('empty');
+    const statusEl = document.getElementById('status');
+    const nodes = new Map();
+
+    function api(path, options) {
+      return fetch(path + '?t=' + encodeURIComponent(token), options);
+    }
+
+    async function decide(id, decision, remember) {
+      const node = nodes.get(id);
+      if (node) {
+        node.card.remove();
+        nodes.delete(id);
+      }
+      try {
+        await api('/api/decide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, decision: decision, remember: remember })
+        });
+      } catch (error) {}
+      poll();
+    }
+
+    function make(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const title = document.createElement('div');
+      title.className = 'title';
+      const code = document.createElement('code');
+      code.textContent = item.tool;
+      title.append('Allow tool ', code, '?');
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+
+      const args = document.createElement('pre');
+      args.textContent = item.args;
+
+      const buttons = document.createElement('div');
+      buttons.className = 'buttons';
+      [
+        ['Allow once', 'allow', false, 'ok'],
+        ['Deny', 'deny', false, 'bad'],
+        ['Always allow this tool (session)', 'allow', true, ''],
+        ['Always deny this tool (session)', 'deny', true, '']
+      ].forEach(function (spec) {
+        const button = document.createElement('button');
+        button.textContent = spec[0];
+        if (spec[3]) button.className = spec[3];
+        button.addEventListener('click', function () {
+          decide(item.id, spec[1], spec[2]);
+        });
+        buttons.appendChild(button);
+      });
+
+      card.append(title, meta, args, buttons);
+      return { card: card, meta: meta };
+    }
+
+    function metaText(item) {
+      const left = Math.max(0, Math.round((item.expiresAt - Date.now()) / 1000));
+      const parts = [];
+      if (item.rule) parts.push('rule: ' + item.rule);
+      if (item.reason) parts.push(item.reason);
+      parts.push(left + 's left');
+      return parts.join(' · ');
+    }
+
+    async function poll() {
+      try {
+        const res = await api('/api/pending');
+        if (!res.ok) throw new Error(String(res.status));
+        const list = await res.json();
+        const seen = new Set();
+        list.forEach(function (item) {
+          seen.add(item.id);
+          let node = nodes.get(item.id);
+          if (!node) {
+            node = make(item);
+            nodes.set(item.id, node);
+            itemsEl.appendChild(node.card);
+          }
+          node.meta.textContent = metaText(item);
+        });
+        nodes.forEach(function (node, id) {
+          if (!seen.has(id)) {
+            node.card.remove();
+            nodes.delete(id);
+          }
+        });
+        emptyEl.hidden = list.length > 0;
+        document.title = (list.length ? '(' + list.length + ') ' : '') + 'mcp-lens guard';
+        statusEl.textContent = 'connected';
+        statusEl.className = 'status';
+      } catch (error) {
+        statusEl.textContent = 'offline';
+        statusEl.className = 'status off';
+      }
+    }
+
+    setInterval(poll, 1000);
+    poll();
+  </script>
+</body>
+</html>
