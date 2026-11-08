@@ -1,0 +1,42 @@
+{
+  "name": "mcp-lens",
+  "version": "0.1.0",
+  "description": "Observe, guard, and evaluate MCP servers. Live traffic dashboard, tool-call policy firewall, and offline tool-definition linting.",
+  "type": "module",
+  "bin": {
+    "mcp-lens": "bin/mcp-lens.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "devtools",
+    "proxy",
+    "inspector",
+    "llm",
+    "observability",
+    "security"
+  ],
+  "author": "KaparthyReddy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaparthyReddy/mcp-lens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KaparthyReddy/mcp-lens/issues"
+  },
+  "homepage": "https://github.com/KaparthyReddy/mcp-lens#readme"
+}
