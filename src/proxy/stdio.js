@@ -1,16 +1,55 @@
 import { spawn } from 'node:child_process';
-import { LineSplitter } from './jsonrpc.js';
+import { LineSplitter, parseMessage, errorResponse } from './jsonrpc.js';
+
+function quoteWindows(value) {
+  if (value !== '' && !/[\s"&|<>^()%!]/.test(value)) return value;
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function launch(command, args) {
+  const options = {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: process.env,
+    windowsHide: true
+  };
+  if (process.platform === 'win32' && !/\.exe$/i.test(command)) {
+    return spawn([command, ...args].map(quoteWindows).join(' '), {
+      ...options,
+      shell: true
+    });
+  }
+  return spawn(command, args, options);
+}
+
+function failClosedReply(line) {
+  const message = parseMessage(line);
+  if (
+    message &&
+    typeof message === 'object' &&
+    !Array.isArray(message) &&
+    message.id !== undefined &&
+    message.id !== null
+  ) {
+    return errorResponse(message.id, -32603, 'mcp-lens could not evaluate this request');
+  }
+  return null;
+}
 
 export function runStdioProxy({ command, args, session, intercept, onExit }) {
-  const child = spawn(command, args, {
-    stdio: ['pipe', 'pipe', 'pipe'],
-    shell: process.platform === 'win32',
-    env: process.env
-  });
+  const child = launch(command, args);
 
   process.stdin.setEncoding('utf8');
   child.stdout.setEncoding('utf8');
   child.stderr.setEncoding('utf8');
+
+  let inflight = 0;
+  let stdinEnded = false;
+
+  const closeServerInput = () => {
+    if (stdinEnded && inflight === 0 && !child.stdin.destroyed) {
+      child.stdin.end();
+    }
+  };
 
   const writeToServer = (line) => {
     if (!child.stdin.destroyed && child.stdin.writable) {
@@ -18,24 +57,35 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
     }
   };
 
+  const reportError = (text) => {
+    session.observeStderr(text);
+    process.stderr.write(text);
+  };
+
   const handleClientLine = async (line) => {
-    session.observe('c2s', line);
-    if (intercept) {
-      let reply = null;
-      try {
-        reply = await intercept(line);
-      } catch (error) {
-        const text = `[mcp-lens] intercept error: ${error.message}\n`;
-        session.observeStderr(text);
-        process.stderr.write(text);
+    inflight++;
+    try {
+      session.observe('c2s', line);
+      if (intercept) {
+        let reply = null;
+        try {
+          reply = await intercept(line);
+        } catch (error) {
+          reportError(`[mcp-lens] intercept error: ${error.message}\n`);
+          reply = failClosedReply(line);
+          if (!reply) return;
+        }
+        if (reply) {
+          process.stdout.write(reply + '\n');
+          session.observe('s2c', reply, { synthetic: true });
+          return;
+        }
       }
-      if (reply) {
-        process.stdout.write(reply + '\n');
-        session.observe('s2c', reply, { synthetic: true });
-        return;
-      }
+      writeToServer(line);
+    } finally {
+      inflight--;
+      closeServerInput();
     }
-    writeToServer(line);
   };
 
   const handleServerLine = (line) => {
@@ -43,13 +93,18 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
     process.stdout.write(line + '\n');
   };
 
-  const inbound = new LineSplitter(handleClientLine);
+  const inbound = new LineSplitter((line) => {
+    handleClientLine(line).catch((error) => {
+      reportError(`[mcp-lens] proxy error: ${error.message}\n`);
+    });
+  });
   const outbound = new LineSplitter(handleServerLine);
 
   process.stdin.on('data', (chunk) => inbound.push(chunk));
   process.stdin.on('end', () => {
     inbound.flush();
-    if (!child.stdin.destroyed) child.stdin.end();
+    stdinEnded = true;
+    closeServerInput();
   });
 
   child.stdout.on('data', (chunk) => outbound.push(chunk));
@@ -61,13 +116,11 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
   child.stdin.on('error', () => {});
 
   child.on('error', (error) => {
-    const text = `[mcp-lens] failed to start "${command}": ${error.message}\n`;
-    session.observeStderr(text);
-    process.stderr.write(text);
+    reportError(`[mcp-lens] failed to start "${command}": ${error.message}\n`);
     onExit?.(1);
   });
 
-  child.on('exit', (code, signal) => {
+  child.on('close', (code, signal) => {
     outbound.flush();
     session.end(code, signal);
     onExit?.(code ?? (signal ? 1 : 0));
