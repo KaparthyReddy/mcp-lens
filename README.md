@@ -4,7 +4,7 @@
 
 Observe, guard, and evaluate MCP servers. Zero dependencies. No API keys. Everything runs on your machine.
 
-<!-- Add docs/demo.gif here: ![mcp-lens demo](docs/demo.gif) -->
+![mcp-lens demo](docs/demo.gif)
 
 | Command | What it does |
 | --- | --- |
