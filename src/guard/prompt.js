@@ -87,11 +87,11 @@ function askTty(io, item, signal) {
       resolve(value);
     };
     const onAbort = () => {
-      io.output.write('\n[mcp-lens] resolved elsewhere\n');
+      io.output.write('\n[mcp-loupe] resolved elsewhere\n');
       finish(null);
     };
     signal.addEventListener('abort', onAbort, { once: true });
-    io.output.write(`\n[mcp-lens] approval needed: ${item.tool}\n${describeArgs(item.args)}\n`);
+    io.output.write(`\n[mcp-loupe] approval needed: ${item.tool}\n${describeArgs(item.args)}\n`);
     rl.question(
       '[y] allow once  [n] deny  [a] always allow tool  [d] always deny tool > ',
       (answer) => {
@@ -188,7 +188,7 @@ export async function createApprover({ mode, timeoutMs, port, openBrowser, log }
   };
 
   const announce = (item) => {
-    notify('mcp-lens guard', `Approval needed for tool ${clean(item.tool, 60)}`);
+    notify('mcp-loupe guard', `Approval needed for tool ${clean(item.tool, 60)}`);
     const pageOpen = Date.now() - lastPoll < 4000;
     if (!pageOpen && openBrowser && Date.now() - lastOpened > 20000) {
       lastOpened = Date.now();

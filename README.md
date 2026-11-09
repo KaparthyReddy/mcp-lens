@@ -1,34 +1,34 @@
-# mcp-lens
+# mcp-loupe
 
-[![ci](https://github.com/KaparthyReddy/mcp-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/KaparthyReddy/mcp-lens/actions/workflows/ci.yml)
+[![ci](https://github.com/KaparthyReddy/mcp-loupe/actions/workflows/ci.yml/badge.svg)](https://github.com/KaparthyReddy/mcp-loupe/actions/workflows/ci.yml)
 
 Observe, guard, and evaluate MCP servers. Zero dependencies. No API keys. Everything runs on your machine.
 
-![mcp-lens demo](docs/demo.gif)
+![mcp-loupe demo](docs/demo.gif)
 
 | Command | What it does |
 | --- | --- |
-| `mcp-lens run` | Wraps an MCP server, shows every JSON-RPC message in a live local dashboard: tool calls, sizes, estimated tokens, latency, stderr. |
-| `mcp-lens run --guard guard.json` | Adds a policy firewall: auto-allow safe tools, block dangerous calls, ask you about the rest. |
-| `mcp-lens lint` | Checks tool names, descriptions, and schemas for problems that make models pick tools badly. Fully offline. |
-| `mcp-lens eval` | Measures how reliably a local model (Ollama) picks your tools and fills in arguments. Free. |
-| `mcp-lens init` | Patches Claude Desktop, Cursor, Claude Code, Windsurf, and Cline configs to wrap your servers. |
+| `mcp-loupe run` | Wraps an MCP server, shows every JSON-RPC message in a live local dashboard: tool calls, sizes, estimated tokens, latency, stderr. |
+| `mcp-loupe run --guard guard.json` | Adds a policy firewall: auto-allow safe tools, block dangerous calls, ask you about the rest. |
+| `mcp-loupe lint` | Checks tool names, descriptions, and schemas for problems that make models pick tools badly. Fully offline. |
+| `mcp-loupe eval` | Measures how reliably a local model (Ollama) picks your tools and fills in arguments. Free. |
+| `mcp-loupe init` | Patches Claude Desktop, Cursor, Claude Code, Windsurf, and Cline configs to wrap your servers. |
 
 ## Quick start
 
 Requires Node 18 or newer.
 
 ```
-git clone https://github.com/KaparthyReddy/mcp-lens.git
-cd mcp-lens
+git clone https://github.com/KaparthyReddy/mcp-loupe.git
+cd mcp-loupe
 node examples/demo-client.js --hold --open
 ```
 
 That runs a demo client against a demo server and opens the dashboard.
 
-## Observe: `mcp-lens run`
+## Observe: `mcp-loupe run`
 
-Put `mcp-lens run --` in front of the server command you already use.
+Put `mcp-loupe run --` in front of the server command you already use.
 
 Claude Desktop, Cursor, Cline, Windsurf (`mcpServers` JSON):
 
@@ -37,7 +37,7 @@ Claude Desktop, Cursor, Cline, Windsurf (`mcpServers` JSON):
   "mcpServers": {
     "notes": {
       "command": "npx",
-      "args": ["-y", "mcp-lens", "run", "--", "node", "/path/to/server.js"]
+      "args": ["-y", "mcp-loupe", "run", "--", "node", "/path/to/server.js"]
     }
   }
 }
@@ -46,10 +46,10 @@ Claude Desktop, Cursor, Cline, Windsurf (`mcpServers` JSON):
 Claude Code:
 
 ```
-claude mcp add notes -- npx -y mcp-lens run -- node /path/to/server.js
+claude mcp add notes -- npx -y mcp-loupe run -- node /path/to/server.js
 ```
 
-Or let `mcp-lens init` patch your configs for you. It makes a `.mcp-lens.bak` backup first and can unwrap later.
+Or let `mcp-loupe init` patch your configs for you. It makes a `.mcp-loupe.bak` backup first and can unwrap later.
 
 The dashboard runs at `http://127.0.0.1:7777`. If the port is taken it uses the next free one. Each wrapped server gets its own dashboard.
 
@@ -67,7 +67,7 @@ Options: `--port`, `--open`, `--hold` (keep the dashboard up after the server ex
 ![guard approval](docs/guard-approval.gif)
 
 ```
-mcp-lens run --guard examples/guard.json -- node server.js
+mcp-loupe run --guard examples/guard.json -- node server.js
 ```
 
 The guard reads every `tools/call` before the server does. Rules are checked top to bottom and the first match wins. If nothing matches, `defaultAction` applies.
@@ -79,7 +79,7 @@ The guard reads every `tools/call` before the server does. Rules are checked top
   "askTimeoutSeconds": 60,
   "approvalPort": 7778,
   "openBrowser": true,
-  "audit": ".mcp-lens/audit.jsonl",
+  "audit": ".mcp-loupe/audit.jsonl",
   "rules": [
     {
       "name": "block destructive shell",
@@ -100,11 +100,11 @@ The guard reads every `tools/call` before the server does. Rules are checked top
 - **Audit log:** every decision is appended as JSONL. The path is relative to the policy file.
 - **Blocked calls** return an MCP tool error to the client, so the model sees why and can adapt.
 
-## Lint: `mcp-lens lint`
+## Lint: `mcp-loupe lint`
 
 ```
-mcp-lens lint -- node server.js
-mcp-lens lint --json -- node server.js
+mcp-loupe lint -- node server.js
+mcp-loupe lint --json -- node server.js
 ```
 
 Exits 1 if any error-level finding exists, so it works in CI.
@@ -117,13 +117,13 @@ Exits 1 if any error-level finding exists, so it works in CI.
 
 `similar-tools` uses TF-IDF cosine similarity on names, descriptions, and parameter names to find tools a model is likely to confuse.
 
-## Eval: `mcp-lens eval`
+## Eval: `mcp-loupe eval`
 
 Needs [Ollama](https://ollama.com) and a tool-capable model:
 
 ```
 ollama pull llama3.2:3b
-mcp-lens eval --prompts examples/eval-prompts.json -- node server.js
+mcp-loupe eval --prompts examples/eval-prompts.json -- node server.js
 ```
 
 Prompts file:

@@ -4,7 +4,7 @@
   "askTimeoutSeconds": 60,
   "approvalPort": 7778,
   "openBrowser": true,
-  "audit": ".mcp-lens/audit.jsonl",
+  "audit": ".mcp-loupe/audit.jsonl",
   "rules": [
     {
       "name": "block destructive shell patterns",

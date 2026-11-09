@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { findConfigs } from './clients.js';
 import { loadPolicy } from '../guard/policy.js';
 
-const BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'bin', 'mcp-lens.js');
+const BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'bin', 'mcp-loupe.js');
 
 export function launcher(binPath = BIN) {
   if (binPath.includes(`${sep}_npx${sep}`)) {
-    return { command: 'npx', args: ['-y', 'mcp-lens'] };
+    return { command: 'npx', args: ['-y', 'mcp-loupe'] };
   }
   return { command: process.execPath, args: [binPath] };
 }
@@ -30,7 +30,7 @@ export function isWrapped(entry) {
   return (
     args.includes('run') &&
     args.includes('--') &&
-    args.some((arg) => /(^|[\\/])mcp-lens(\.js)?$/.test(arg))
+    args.some((arg) => /(^|[\\/])mcp-loupe(\.js)?$/.test(arg))
   );
 }
 
@@ -175,7 +175,7 @@ export async function runInit(values) {
         continue;
       }
 
-      const backup = `${config.path}.mcp-lens.bak`;
+      const backup = `${config.path}.mcp-loupe.bak`;
       if (!existsSync(backup)) copyFileSync(config.path, backup);
       writeFileSync(config.path, JSON.stringify(data, null, 2) + '\n');
       totalChanges += changes;

@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { isStdioServer, isWrapped, launcher, unwrapEntry, wrapEntry } from '../src/init/init.js';
 
-const launch = { command: '/usr/bin/node', args: ['/x/bin/mcp-lens.js'] };
+const launch = { command: '/usr/bin/node', args: ['/x/bin/mcp-loupe.js'] };
 
 test('wrapEntry puts the original command after --', () => {
   const original = { command: 'npx', args: ['-y', 'server'], env: { A: '1' } };
   const wrapped = wrapEntry(original, launch, null);
   assert.deepEqual(wrapped, {
     command: '/usr/bin/node',
-    args: ['/x/bin/mcp-lens.js', 'run', '--', 'npx', '-y', 'server'],
+    args: ['/x/bin/mcp-loupe.js', 'run', '--', 'npx', '-y', 'server'],
     env: { A: '1' }
   });
   assert.equal(isWrapped(wrapped), true);
@@ -19,7 +19,7 @@ test('wrapEntry puts the original command after --', () => {
 test('wrapEntry adds the guard flag before --', () => {
   const wrapped = wrapEntry({ command: 'node', args: ['s.js'] }, launch, '/p/guard.json');
   assert.deepEqual(wrapped.args, [
-    '/x/bin/mcp-lens.js',
+    '/x/bin/mcp-loupe.js',
     'run',
     '--guard',
     '/p/guard.json',
@@ -42,7 +42,7 @@ test('wrapEntry works for entries without args', () => {
 
 test('isWrapped detects the npx form and ignores plain servers', () => {
   assert.equal(
-    isWrapped({ command: 'npx', args: ['-y', 'mcp-lens', 'run', '--', 'node', 's.js'] }),
+    isWrapped({ command: 'npx', args: ['-y', 'mcp-loupe', 'run', '--', 'node', 's.js'] }),
     true
   );
   assert.equal(isWrapped({ command: 'npx', args: ['-y', 'server'] }), false);
@@ -55,8 +55,8 @@ test('isStdioServer rejects remote entries', () => {
 });
 
 test('launcher uses npx only when running from the npx cache', () => {
-  const cached = join('home', '.npm', '_npx', 'abc', 'node_modules', 'mcp-lens', 'bin', 'mcp-lens.js');
-  assert.deepEqual(launcher(cached), { command: 'npx', args: ['-y', 'mcp-lens'] });
-  const local = launcher(join('work', 'mcp-lens', 'bin', 'mcp-lens.js'));
+  const cached = join('home', '.npm', '_npx', 'abc', 'node_modules', 'mcp-loupe', 'bin', 'mcp-loupe.js');
+  assert.deepEqual(launcher(cached), { command: 'npx', args: ['-y', 'mcp-loupe'] });
+  const local = launcher(join('work', 'mcp-loupe', 'bin', 'mcp-loupe.js'));
   assert.equal(local.command, process.execPath);
 });

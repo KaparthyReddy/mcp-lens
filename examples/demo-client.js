@@ -4,12 +4,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const extra = process.argv.slice(2);
+const args = process.argv.slice(2);
+const wait = args.includes('--wait');
+const extra = args.filter((arg) => arg !== '--wait');
 
 const child = spawn(
   process.execPath,
   [
-    join(root, 'bin', 'mcp-lens.js'),
+    join(root, 'bin', 'mcp-loupe.js'),
     'run',
     ...extra,
     '--',
@@ -79,7 +81,7 @@ const steps = [
   call('list_notes', {}),
   call('get_note', { id: 'n2' }),
   call('search_notes', { query: 'groceries' }),
-  call('save_note', { title: 'Ideas', body: 'Ship mcp-lens v0.1' }),
+  call('save_note', { title: 'Ideas', body: 'Ship mcp-loupe v0.1' }),
   call('run_command', { command: 'ls -la' }),
   call('run_command', { command: 'rm -rf /' }),
   call('get_note', { id: '../../.ssh/id_rsa' }),
@@ -90,6 +92,13 @@ const steps = [
 ];
 
 try {
+  if (wait) {
+    await sleep(1500);
+    process.stderr.write('\nArrange your windows, start recording, then press Enter here to begin... ');
+    await new Promise((resolve) => process.stdin.once('data', resolve));
+    process.stdin.pause();
+  }
+
   for (const [method, params] of steps) {
     if (method === 'notify') {
       send({ jsonrpc: '2.0', method: params });

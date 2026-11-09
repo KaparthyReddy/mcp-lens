@@ -270,7 +270,7 @@ function renderDetail() {
   const links = [];
   if (r.requestSeq) links.push(`<a href="#" data-goto="${r.requestSeq}">request #${r.requestSeq}</a>`);
   if (response) links.push(`<a href="#" data-goto="${response.seq}">response #${response.seq}</a>`);
-  if (r.synthetic) links.push('<span class="badge guard">synthetic reply from mcp-lens guard</span>');
+  if (r.synthetic) links.push('<span class="badge guard">synthetic reply from mcp-loupe guard</span>');
 
   el.detail.classList.remove('hidden');
   el.detail.innerHTML = `

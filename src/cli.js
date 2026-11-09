@@ -35,7 +35,7 @@ const ALIASES = {
   '-y': '--yes'
 };
 
-const log = (message) => process.stderr.write(`[mcp-lens] ${message}\n`);
+const log = (message) => process.stderr.write(`[mcp-loupe] ${message}\n`);
 
 function fail(message) {
   log(message);
@@ -86,15 +86,15 @@ function parseOptions(list) {
 }
 
 function printHelp() {
-  process.stdout.write(`mcp-lens ${pkg.version}
+  process.stdout.write(`mcp-loupe ${pkg.version}
 
 Observe, guard, and evaluate MCP servers.
 
 Usage
-  mcp-lens run [options] -- <command> [args...]
-  mcp-lens lint [options] -- <command> [args...]
-  mcp-lens eval --prompts <file> [options] -- <command> [args...]
-  mcp-lens init [--yes]
+  mcp-loupe run [options] -- <command> [args...]
+  mcp-loupe lint [options] -- <command> [args...]
+  mcp-loupe eval --prompts <file> [options] -- <command> [args...]
+  mcp-loupe init [--yes]
 
 Options
   -p, --port <n>      dashboard port (default 7777)
@@ -114,7 +114,7 @@ Options
 
 Client config example
   "command": "npx",
-  "args": ["-y", "mcp-lens", "run", "--", "node", "server.js"]
+  "args": ["-y", "mcp-loupe", "run", "--", "node", "server.js"]
 `);
 }
 
@@ -141,7 +141,7 @@ function openBrowser(url) {
 
 async function runCommand(values, command) {
   if (command.length === 0) {
-    fail('missing server command. usage: mcp-lens run [options] -- <command> [args...]');
+    fail('missing server command. usage: mcp-loupe run [options] -- <command> [args...]');
   }
   const [executable, ...args] = command;
 

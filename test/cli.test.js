@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const bin = join(root, 'bin', 'mcp-lens.js');
+const bin = join(root, 'bin', 'mcp-loupe.js');
 const demo = join(root, 'examples', 'demo-server.js');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 
@@ -22,7 +22,7 @@ test('prints the version', () => {
 test('prints help', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0);
-  assert.match(result.stdout, /mcp-lens run/);
+  assert.match(result.stdout, /mcp-loupe run/);
 });
 
 test('rejects unknown options', () => {

@@ -1,10 +1,10 @@
 {
-  "name": "mcp-lens",
+  "name": "mcp-loupe",
   "version": "0.1.0",
   "description": "Observe, guard, and evaluate MCP servers. Live traffic dashboard, tool-call policy firewall, and offline tool-definition linting.",
   "type": "module",
   "bin": {
-    "mcp-lens": "bin/mcp-lens.js"
+    "mcp-loupe": "bin/mcp-loupe.js"
   },
   "files": [
     "bin",
@@ -33,10 +33,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KaparthyReddy/mcp-lens.git"
+    "url": "git+https://github.com/KaparthyReddy/mcp-loupe.git"
   },
   "bugs": {
-    "url": "https://github.com/KaparthyReddy/mcp-lens/issues"
+    "url": "https://github.com/KaparthyReddy/mcp-loupe/issues"
   },
-  "homepage": "https://github.com/KaparthyReddy/mcp-lens#readme"
+  "homepage": "https://github.com/KaparthyReddy/mcp-loupe#readme"
 }

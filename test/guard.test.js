@@ -10,7 +10,7 @@ const call = (name, id = 1) =>
   JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/call', params: { name, arguments: {} } });
 
 test('guard allows, denies, and ignores non-tool traffic', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mcp-lens-'));
+  const dir = mkdtempSync(join(tmpdir(), 'mcp-loupe-'));
   const file = join(dir, 'guard.json');
   writeFileSync(
     file,
@@ -33,7 +33,7 @@ test('guard allows, denies, and ignores non-tool traffic', async () => {
     const denied = JSON.parse(await guard.intercept(call('write_file', 7)));
     assert.equal(denied.id, 7);
     assert.equal(denied.result.isError, true);
-    assert.match(denied.result.content[0].text, /Blocked by mcp-lens guard/);
+    assert.match(denied.result.content[0].text, /Blocked by mcp-loupe guard/);
 
     assert.equal(
       await guard.intercept(JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' })),

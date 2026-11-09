@@ -30,7 +30,7 @@ function failClosedReply(line) {
     message.id !== undefined &&
     message.id !== null
   ) {
-    return errorResponse(message.id, -32603, 'mcp-lens could not evaluate this request');
+    return errorResponse(message.id, -32603, 'mcp-loupe could not evaluate this request');
   }
   return null;
 }
@@ -71,7 +71,7 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
         try {
           reply = await intercept(line);
         } catch (error) {
-          reportError(`[mcp-lens] intercept error: ${error.message}\n`);
+          reportError(`[mcp-loupe] intercept error: ${error.message}\n`);
           reply = failClosedReply(line);
           if (!reply) return;
         }
@@ -95,7 +95,7 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
 
   const inbound = new LineSplitter((line) => {
     handleClientLine(line).catch((error) => {
-      reportError(`[mcp-lens] proxy error: ${error.message}\n`);
+      reportError(`[mcp-loupe] proxy error: ${error.message}\n`);
     });
   });
   const outbound = new LineSplitter(handleServerLine);
@@ -116,7 +116,7 @@ export function runStdioProxy({ command, args, session, intercept, onExit }) {
   child.stdin.on('error', () => {});
 
   child.on('error', (error) => {
-    reportError(`[mcp-lens] failed to start "${command}": ${error.message}\n`);
+    reportError(`[mcp-loupe] failed to start "${command}": ${error.message}\n`);
     onExit?.(1);
   });
 

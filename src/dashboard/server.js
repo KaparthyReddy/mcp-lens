@@ -133,7 +133,7 @@ export async function startDashboard({
         res,
         200,
         { session: { ...session.info(), ended: endInfo }, records: store.records },
-        { 'Content-Disposition': 'attachment; filename="mcp-lens-session.json"' }
+        { 'Content-Disposition': 'attachment; filename="mcp-loupe-session.json"' }
       );
       return;
     }

@@ -123,7 +123,7 @@ export function introspect({ command, args = [], timeoutMs = 20000 }) {
       const init = await request('initialize', {
         protocolVersion: '2025-06-18',
         capabilities: {},
-        clientInfo: { name: 'mcp-lens', version: pkg.version }
+        clientInfo: { name: 'mcp-loupe', version: pkg.version }
       });
       write({ jsonrpc: '2.0', method: 'notifications/initialized' });
 

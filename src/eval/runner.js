@@ -46,7 +46,7 @@ function badge(severity) {
 function printLint(serverInfo, report) {
   const { summary, tools, global } = report;
   const out = [];
-  out.push(bold(`mcp-lens lint · ${describeServer(serverInfo)}`));
+  out.push(bold(`mcp-loupe lint · ${describeServer(serverInfo)}`));
   out.push(
     `${summary.tools} tools · ~${summary.totalTokens.toLocaleString()} tokens of definitions (avg ~${summary.avgTokens}, heaviest: ${summary.heaviest ?? 'n/a'})`
   );
@@ -79,7 +79,7 @@ function printLint(serverInfo, report) {
 }
 
 export async function runLint(values, command) {
-  requireCommand(command, 'mcp-lens lint -- <command> [args...]');
+  requireCommand(command, 'mcp-loupe lint -- <command> [args...]');
   const [executable, ...args] = command;
   const { serverInfo, tools } = await introspect({ command: executable, args });
   const report = lintTools(tools);
@@ -227,7 +227,7 @@ const row = (label, part, whole) =>
 
 function printEval({ serverInfo, model, items, runs, summary, results, baseline }) {
   const out = [];
-  out.push(bold(`mcp-lens eval · ${describeServer(serverInfo)} · model ${model}`));
+  out.push(bold(`mcp-loupe eval · ${describeServer(serverInfo)} · model ${model}`));
   out.push(
     dim(
       `${items.length} prompts x ${runs} run${runs === 1 ? '' : 's'} · avg ${summary.avgMs ?? 'n/a'} ms per request`
@@ -270,14 +270,14 @@ function printEval({ serverInfo, model, items, runs, summary, results, baseline 
       for (const item of summary.confusions) out.push(`  ${item.pair}  x${item.times}`);
     }
     out.push('');
-    out.push(dim('tip: run "mcp-lens lint -- <server command>" to check descriptions and schemas'));
+    out.push(dim('tip: run "mcp-loupe lint -- <server command>" to check descriptions and schemas'));
   }
 
   console.log(out.join('\n'));
 }
 
 export async function runEval(values, command) {
-  requireCommand(command, 'mcp-lens eval --prompts <file> -- <command> [args...]');
+  requireCommand(command, 'mcp-loupe eval --prompts <file> -- <command> [args...]');
   if (!values.prompts) {
     throw new Error('missing --prompts <file>. see examples/eval-prompts.json');
   }
@@ -296,7 +296,7 @@ export async function runEval(values, command) {
   }
 
   const [executable, ...args] = command;
-  process.stderr.write('[mcp-lens] reading tools from the server...\n');
+  process.stderr.write('[mcp-loupe] reading tools from the server...\n');
   const { serverInfo, tools } = await introspect({ command: executable, args });
   if (tools.length === 0) throw new Error('the server exposes no tools');
 

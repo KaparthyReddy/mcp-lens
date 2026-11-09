@@ -20,7 +20,7 @@ export async function createGuard({ policyPath, session, log }) {
   const policy = loadPolicy(policyPath);
   const baseDir = dirname(resolve(policyPath));
   const auditFile =
-    policy.audit === false ? null : resolve(baseDir, policy.audit ?? '.mcp-lens/audit.jsonl');
+    policy.audit === false ? null : resolve(baseDir, policy.audit ?? '.mcp-loupe/audit.jsonl');
   const audit = createAudit(auditFile);
   const remembered = new Map();
 
@@ -79,7 +79,7 @@ export async function createGuard({ policyPath, session, log }) {
 
   function denyText(result) {
     const detail = result.reason ?? (result.rule ? `rule "${result.rule}"` : 'policy');
-    return `Blocked by mcp-lens guard: ${detail}.`;
+    return `Blocked by mcp-loupe guard: ${detail}.`;
   }
 
   async function intercept(line) {
@@ -99,7 +99,7 @@ export async function createGuard({ policyPath, session, log }) {
           reason: 'JSON-RPC batches containing tools/call are not supported'
         });
       }
-      const text = 'Blocked by mcp-lens guard: JSON-RPC batches containing tools/call are not supported.';
+      const text = 'Blocked by mcp-loupe guard: JSON-RPC batches containing tools/call are not supported.';
       const replies = message
         .filter((entry) => entry && typeof entry === 'object' && entry.id !== undefined && entry.id !== null)
         .map((entry) => JSON.parse(blockedResult(entry.id, text)));

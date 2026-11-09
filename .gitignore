@@ -1,5 +1,5 @@
 node_modules/
-.mcp-lens/
+.mcp-loupe/
 *.log
 .env
 .DS_Store

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mcp-lens guard</title>
+  <title>mcp-loupe guard</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -75,7 +75,7 @@
 <body>
   <main>
     <span id="status" class="status">connected</span>
-    <h1>mcp-lens guard</h1>
+    <h1>mcp-loupe guard</h1>
     <div class="sub">Tool calls waiting for your approval. Unanswered requests are denied when the timer runs out.</div>
     <div id="empty" class="empty">No pending approvals. Keep this tab open.</div>
     <div id="items"></div>
@@ -177,7 +177,7 @@
           }
         });
         emptyEl.hidden = list.length > 0;
-        document.title = (list.length ? '(' + list.length + ') ' : '') + 'mcp-lens guard';
+        document.title = (list.length ? '(' + list.length + ') ' : '') + 'mcp-loupe guard';
         statusEl.textContent = 'connected';
         statusEl.className = 'status';
       } catch (error) {
