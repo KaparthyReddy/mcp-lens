@@ -64,6 +64,8 @@ Options: `--port`, `--open`, `--hold` (keep the dashboard up after the server ex
 
 ## Guard: `--guard guard.json`
 
+![guard approval](docs/guard-approval.gif)
+
 ```
 mcp-lens run --guard examples/guard.json -- node server.js
 ```
